@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
 import { httpLogger } from "./middlewares/logger.middleware.js";
 import { logger } from "./lib/logger.js";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app: Application = express();
 const PORT = process.env.PORT || 4001;
@@ -37,8 +38,8 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-// Routes will be added here
-// app.use("/api/v1/auth", authRoutes);
+// Routes
+app.use("/api/v1/auth", authRoutes);
 
 // Error handling - catch 404
 app.use((req: Request, res: Response) => {
