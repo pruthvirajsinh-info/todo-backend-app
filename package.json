@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/app.ts",
     "postinstall": "npx prisma generate",
-    "build": "tsc",
+    "build": "npm install --include=dev && tsc",
     "start": "node dist/src/app.js"
   },
   "repository": {
