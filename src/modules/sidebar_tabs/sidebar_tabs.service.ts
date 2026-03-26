@@ -1,6 +1,42 @@
 import { prisma } from "../../lib/prisma.js";
 
 export class SidebarTabsService {
+  /**
+   * Get filtered tabs for a specific user.
+   * If user is superadmin, returns all tabs.
+   * Otherwise, only returns tabs where UserSidebarTab.isActive is true.
+   */
+  static async getForUser(userId: string, isSuperAdmin: boolean) {
+    if (isSuperAdmin) {
+      return prisma.sidebarTab.findMany({
+        include: { module: true },
+        orderBy: { order: "asc" },
+      });
+    }
+
+    // Join with UserSidebarTab to filter by isActive
+    // If no record exists for this user/tab, we can decide the default.
+    // Based on requirements, only show if active in UserSidebarTab.
+    const userTabs = await prisma.userSidebarTab.findMany({
+      where: {
+        userId,
+        isActive: true,
+      },
+      include: {
+        sidebarTab: {
+          include: { module: true },
+        },
+      },
+      orderBy: {
+        sidebarTab: {
+          order: "asc",
+        },
+      },
+    });
+
+    return userTabs.map((ut) => ut.sidebarTab);
+  }
+
   static async getAll() {
     return prisma.sidebarTab.findMany({
       include: { module: true },

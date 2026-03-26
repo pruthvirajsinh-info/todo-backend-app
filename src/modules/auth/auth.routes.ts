@@ -2,6 +2,8 @@ import { Router } from "express";
 import { AuthController } from "./auth.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth.schema.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
+
 
 const router = Router();
 
@@ -98,5 +100,22 @@ router.post("/forgot-password", validate(forgotPasswordSchema), AuthController.f
  *         description: OK
  */
 router.post("/reset-password", validate(resetPasswordSchema), AuthController.resetPassword);
+
+/**
+ * @openapi
+ * /api/v1/auth/me:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Get current user context
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: OK
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/me", authMiddleware, AuthController.getMe);
+
 
 export default router;

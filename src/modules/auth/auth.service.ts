@@ -130,4 +130,42 @@ export class AuthService {
       throw new Error("Invalid or expired reset token");
     }
   }
+
+  static async getMe(id: string) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              include: {
+                rolePermissions: {
+                   include: {
+                     permission: true,
+                   },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user || !user.isActive) {
+      throw new Error("User not found or inactive");
+    }
+
+    const permissions = user.userRoles.flatMap((ur) =>
+      ur.role.rolePermissions.map((rp) => rp.permission.name)
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      roles: user.userRoles.map((ur) => ur.role.name),
+      permissions: [...new Set(permissions)],
+    };
+  }
 }
+

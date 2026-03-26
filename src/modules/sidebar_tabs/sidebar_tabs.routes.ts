@@ -7,7 +7,10 @@ import { createSidebarTabSchema, updateSidebarTabSchema, deleteSidebarTabSchema 
 
 const router = Router();
 
-router.get("/", authMiddleware, rbacMiddleware("sidebar_tabs:read"), SidebarTabsController.getAll);
+// Allow ALL authenticated users to fetch sidebar tabs (service handles filtering)
+router.get("/", authMiddleware, SidebarTabsController.getAll);
+
+// Admin-only management routes
 router.get("/:id", authMiddleware, rbacMiddleware("sidebar_tabs:read"), SidebarTabsController.getById);
 router.post("/", authMiddleware, rbacMiddleware("sidebar_tabs:create"), validate(createSidebarTabSchema), SidebarTabsController.create);
 router.patch("/:id", authMiddleware, rbacMiddleware("sidebar_tabs:update"), validate(updateSidebarTabSchema), SidebarTabsController.update);

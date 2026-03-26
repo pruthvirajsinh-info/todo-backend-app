@@ -20,6 +20,7 @@ model User {
 
   userRoles UserRole[]
   todos     Todo[]
+  userSidebarTabs UserSidebarTab[]
 
   @@map("users")
 }
@@ -129,8 +130,25 @@ model SidebarTab {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  userSidebarTabs UserSidebarTab[]
 
   @@map("sidebar_tabs")
+}
+
+model UserSidebarTab {
+  id           String  @id @default(uuid())
+  userId       String  @map("user_id")
+  sidebarTabId String  @map("sidebar_tab_id")
+  isActive     Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sidebarTab SidebarTab @relation(fields: [sidebarTabId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sidebarTabId])
+  @@map("user_sidebar_tabs")
 }
 
 // ─── Todos ────────────────────────────────────────────────────────────────────

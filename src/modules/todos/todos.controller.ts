@@ -8,10 +8,10 @@ export class TodosController {
     try {
       const isAdmin = req.user?.roles.some(r => ["superadmin", "admin"].includes(r)) ?? false;
       const todos = await TodosService.getAll(req.user!.id, isAdmin);
-      res.status(200).json(todos);
+      res.status(200).json({ status: "success", data: todos });
     } catch (error: any) {
       logger.error(`Error getting todos: ${error.message}`);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ status: "error", message: error.message });
     }
   }
 
@@ -20,21 +20,21 @@ export class TodosController {
       const id = req.params["id"] as string;
       const isAdmin = req.user?.roles.some(r => ["superadmin", "admin"].includes(r)) ?? false;
       const todo = await TodosService.getById(id, req.user!.id, isAdmin);
-      if (!todo) return res.status(404).json({ message: "Todo not found" });
-      res.status(200).json(todo);
+      if (!todo) return res.status(404).json({ status: "error", message: "Todo not found" });
+      res.status(200).json({ status: "success", data: todo });
     } catch (error: any) {
       logger.error(`Error getting todo by id: ${error.message}`);
-      res.status(error.message.includes("Access denied") ? 403 : 500).json({ message: error.message });
+      res.status(error.message.includes("Access denied") ? 403 : 500).json({ status: "error", message: error.message });
     }
   }
 
   static async create(req: AuthRequest, res: Response) {
     try {
       const todo = await TodosService.create(req.body, req.user!.id);
-      res.status(201).json(todo);
+      res.status(201).json({ status: "success", data: todo });
     } catch (error: any) {
       logger.error(`Error creating todo: ${error.message}`);
-      res.status(400).json({ message: error.message });
+      res.status(400).json({ status: "error", message: error.message });
     }
   }
 
@@ -43,10 +43,10 @@ export class TodosController {
       const id = req.params["id"] as string;
       const isAdmin = req.user?.roles.some(r => ["superadmin", "admin"].includes(r)) ?? false;
       const todo = await TodosService.update(id, req.body, req.user!.id, isAdmin);
-      res.status(200).json(todo);
+      res.status(200).json({ status: "success", data: todo });
     } catch (error: any) {
       logger.error(`Error updating todo: ${error.message}`);
-      res.status(error.message.includes("Access denied") ? 403 : 400).json({ message: error.message });
+      res.status(error.message.includes("Access denied") ? 403 : 400).json({ status: "error", message: error.message });
     }
   }
 

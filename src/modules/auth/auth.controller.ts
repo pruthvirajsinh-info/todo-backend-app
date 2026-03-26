@@ -1,4 +1,6 @@
 import type { Request, Response } from "express";
+import type { AuthRequest } from "../../middlewares/auth.middleware.js";
+
 import { AuthService } from "./auth.service.js";
 import { logger } from "../../lib/logger.js";
 
@@ -53,4 +55,18 @@ export class AuthController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  static async getMe(req: AuthRequest, res: Response) {
+    try {
+      const user = await AuthService.getMe(req.user!.id);
+      res.status(200).json({
+        message: "User context retrieved",
+        data: user,
+      });
+    } catch (error: any) {
+      logger.error(`GetMe error: ${error.message}`);
+      res.status(401).json({ message: error.message });
+    }
+  }
 }
+
