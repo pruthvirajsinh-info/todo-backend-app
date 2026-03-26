@@ -20,7 +20,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user and assign "user" role
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: any) => {
       const newUser = await tx.user.create({
         data: {
           name,
@@ -79,15 +79,15 @@ export class AuthService {
     }
 
     // Extract permissions
-    const permissions = user.userRoles.flatMap((ur) =>
-      ur.role.rolePermissions.map((rp) => rp.permission.name)
+    const permissions = user.userRoles.flatMap((ur: any) =>
+      ur.role.rolePermissions.map((rp: any) => rp.permission.name)
     );
 
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
-        roles: user.userRoles.map((ur) => ur.role.name),
+        roles: user.userRoles.map((ur: any) => ur.role.name),
         permissions: [...new Set(permissions)],
       },
       JWT_SECRET,
@@ -155,15 +155,15 @@ export class AuthService {
       throw new Error("User not found or inactive");
     }
 
-    const permissions = user.userRoles.flatMap((ur) =>
-      ur.role.rolePermissions.map((rp) => rp.permission.name)
+    const permissions = user.userRoles.flatMap((ur: any) =>
+      ur.role.rolePermissions.map((rp: any) => rp.permission.name)
     );
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
-      roles: user.userRoles.map((ur) => ur.role.name),
+      roles: user.userRoles.map((ur: any) => ur.role.name),
       permissions: [...new Set(permissions)],
     };
   }

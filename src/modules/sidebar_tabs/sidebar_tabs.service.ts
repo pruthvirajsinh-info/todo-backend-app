@@ -34,7 +34,7 @@ export class SidebarTabsService {
       },
     });
 
-    return userTabs.map((ut) => ut.sidebarTab);
+    return userTabs.map((ut: any) => ut.sidebarTab);
   }
 
   static async getAll() {
