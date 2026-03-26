@@ -1,30 +1,51 @@
-import express, { type Application, type Request, type Response } from 'express';
+import express, { type Application, type Request, type Response } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import "dotenv/config";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
+import { httpLogger } from "./middlewares/logger.middleware.js";
+import { logger } from "./lib/logger.js";
 
 const app: Application = express();
 const PORT = process.env.PORT || 4001;
 
-// ... other middleware and routes
+// Middlewares
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+app.use(httpLogger);
+
+// Swagger Documentation
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health check route
-app.get('/health', (req: Request, res: Response) => {
-  const healthcheck = {
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     description: Returns the health status of the application
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    status: "up",
     uptime: process.uptime(),
-    message: 'Ok',
-    timestamp: new Date().toISOString()
-  };
-
-  try {
-    res.status(200).json(healthcheck);
-  } catch (error) {
-    // Log the error for debugging
-    console.error('Health check failed:', error);
-    healthcheck.message = 'Service Unavailable';
-    res.status(503).json(healthcheck);
-  }
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// ... other error handling middleware
+// Routes will be added here
+// app.use("/api/v1/auth", authRoutes);
+
+// Error handling - catch 404
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} : http://localhost:${PORT}/health`);
+  logger.info(`Server running on port ${PORT}: http://localhost:${PORT}/health`);
+  logger.info(`Docs available at: http://localhost:${PORT}/docs`);
 });
